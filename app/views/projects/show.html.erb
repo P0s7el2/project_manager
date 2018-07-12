@@ -10,5 +10,21 @@
   <%= @project.summery %>
 </p>
 
+<% if @project.tasks.empty? %>
+  <p>no tasks</p>
+<% else %>
+  <p>tasks:</p>
+  <ul>
+  <% @project.tasks.each do |task| %>
+    <li>
+      <%= task.title %>
+    </li>
+  <% end %>
+  </ul>
+<% end %>
+
+
+
 <%= link_to 'Edit', edit_project_path(@project) %> |
+
 <%= link_to 'Back', projects_path %>

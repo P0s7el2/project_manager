@@ -1,0 +1,36 @@
+<h1><%= @project.name %>Project</h1>
+
+<% if !@project.tasks.empty? %>
+  <%= form_tag(task_remove_project_path(@project)) do %>
+    <table>
+      <thead>
+      <tr>
+        <th>Task</th>
+        <th>Remove?</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% for task in @tasks do %>
+        <tr>
+          <td><%= task.title %></td>
+          <td><%= check_box_tag "tasks[]", task.id %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    <br />
+    <%= submit_tag 'Remove checked tasks' %>
+  <% end %>
+<% else %>
+  <p>No tasks.</p>
+<% end %>
+
+<% if !@tasks.empty? %>
+  <h2>Add new task</h2>
+  <%= form_tag(task_add_project_path(@project)) do %>
+    <%= select_tag(:task, options_from_collection_for_select(@project.unattached_tasks, :id, :title)) %>
+    <%= submit_tag 'Attach' %>
+  <% end %>
+<% end %>
+
+<%= link_to 'Back', projects_path %>

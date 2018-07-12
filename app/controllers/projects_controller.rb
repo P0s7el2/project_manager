@@ -1,14 +1,12 @@
 class ProjectsController < ApplicationController
-  before_action :set_project, only: [:show, :edit, :update, :destroy]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :tasks, :task_add, :task_remove]
 
   # GET /projects
-  # GET /projects.json
   def index
     @projects = Project.all
   end
 
   # GET /projects/1
-  # GET /projects/1.json
   def show
   end
 
@@ -19,56 +17,79 @@ class ProjectsController < ApplicationController
 
   # GET /projects/1/edit
   def edit
+    associated_ids = TasksProject.where(project_id: @project.id).select(:task_id)
+    @projects = Project.where.not(id: associated_ids)
   end
 
   # POST /projects
-  # POST /projects.json
   def create
     @project = Project.new(project_params)
 
-    respond_to do |format|
-      if @project.save
-        format.html { redirect_to @project, notice: 'Project was successfully created.' }
-        format.json { render :show, status: :created, location: @project }
-      else
-        format.html { render :new }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
-      end
+    if @project.save
+      redirect_to @project, notice: 'Project was successfully created.'
+    else
+      render :new
     end
   end
 
   # PATCH/PUT /projects/1
-  # PATCH/PUT /projects/1.json
   def update
-    respond_to do |format|
-      if @project.update(project_params)
-        format.html { redirect_to @project, notice: 'Project was successfully updated.' }
-        format.json { render :show, status: :ok, location: @project }
-      else
-        format.html { render :edit }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
-      end
+    if @project.update(project_params)
+      redirect_to @project, notice: 'Project was successfully updated.'
+    else
+      render :edit
     end
   end
 
   # DELETE /projects/1
-  # DELETE /projects/1.json
   def destroy
     @project.destroy
-    respond_to do |format|
-      format.html { redirect_to projects_url, notice: 'Project was successfully destroyed.' }
-      format.json { head :no_content }
+    redirect_to projects_url, notice: 'Project was successfully destroyed.'
+  end
+
+  # GET /projects/1/tasks
+  def tasks
+    @tasks = @project.tasks
+  end
+
+  # POST /students/1/course_add?course_id=2
+  # (note no real query string, just
+  # convenient notation for parameters)
+  def task_add
+    @task = Task.find(params[:task])
+    if @project.attached?(@task)
+      flash[:error] = 'Task was already added?'
+    else
+      @project.tasks << @task
+      flash[:notice] = 'Task added?'
     end
+    redirect_to action: "tasks", id: @project
+  end
+
+  def task_remove
+    task_ids = params[:tasks]
+    if task_ids.any?
+      task_ids.each do |task_id|
+        task = Task.find(task_id)
+        if @project.attached?(task)
+          logger.info "Removing project from task #{task.id}"
+          @project.tasks.delete(task)
+          flash[:notice] = 'Task was successfully deleted'
+        end
+      end
+    end
+    redirect_to action: "tasks", id: @project
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_project
-      @project = Project.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def project_params
-      params.require(:project).permit(:name, :summery)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_project
+    @project = Project.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def project_params
+    params.require(:project).permit(:name, :summery, task_ids: [])
+  end
 end
