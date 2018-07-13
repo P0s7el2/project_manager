@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class ProjectsController < ApplicationController
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :tasks, :task_add, :task_remove]
+  before_action :set_project, only: %i[show edit update destroy tasks task_add task_remove]
 
   # GET /projects
   def index
@@ -7,8 +9,7 @@ class ProjectsController < ApplicationController
   end
 
   # GET /projects/1
-  def show
-  end
+  def show; end
 
   # GET /projects/new
   def new
@@ -63,7 +64,7 @@ class ProjectsController < ApplicationController
       @project.tasks << @task
       flash[:notice] = 'Task added?'
     end
-    redirect_to action: "tasks", id: @project
+    redirect_to action: 'tasks', id: @project
   end
 
   def task_remove
@@ -71,14 +72,13 @@ class ProjectsController < ApplicationController
     if task_ids.any?
       task_ids.each do |task_id|
         task = Task.find(task_id)
-        if @project.attached?(task)
-          logger.info "Removing project from task #{task.id}"
-          @project.tasks.delete(task)
-          flash[:notice] = 'Task was successfully deleted'
-        end
+        next unless @project.attached?(task)
+        logger.info "Removing project from task #{task.id}"
+        @project.tasks.delete(task)
+        flash[:notice] = 'Task was successfully deleted'
       end
     end
-    redirect_to action: "tasks", id: @project
+    redirect_to action: 'tasks', id: @project
   end
 
   private
