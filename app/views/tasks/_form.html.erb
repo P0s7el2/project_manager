@@ -13,9 +13,19 @@
 
   <div class="field">
     <% if @task.new_record? && (defined?(@project)).nil? %>
-      <%= form.collection_select :project_id, Project.all, :id, :name, { } %>
+      <%= form.collection_select :project_id, Project.all, :id, :name, { :include_blank => 'Attach to project' }%>
+    <% elsif defined?(@task) %>
+      <%# for future %>
     <% else %>
       <%= form.hidden_field :project_id, value: @project.id %>
+    <% end %>
+  </div>
+
+  <div class="field">
+    <% if @task.new_record? %>
+      <%= form.collection_select :user_id, User.all, :id, :email, { :prompt => 'Select user' }%>
+    <% else %>
+      <%= form.collection_select :user_id, User.all, :id, :email, { :selected => @task.user_id  , :prompt => 'Select user' }%>
     <% end %>
   </div>
 

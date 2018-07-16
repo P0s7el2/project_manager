@@ -82,7 +82,6 @@ class ProjectsController < ApplicationController
     redirect_to action: 'tasks', id: @project
   end
 
-
   private
 
   # Use callbacks to share common setup or constraints between actions.
