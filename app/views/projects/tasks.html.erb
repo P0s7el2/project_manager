@@ -25,12 +25,14 @@
   <p>No tasks.</p>
 <% end %>
 
-<% if !@tasks.empty? %>
-  <h2>Add new task</h2>
-  <%= form_tag(task_add_project_path(@project)) do %>
+<% if  @project.tasks.count < Task.count  %>
+  <h2>Attach task</h2>
+  <%= form_tag(task_attach_project_path(@project)) do %>
     <%= select_tag(:task, options_from_collection_for_select(@project.unattached_tasks, :id, :title)) %>
     <%= submit_tag 'Attach' %>
   <% end %>
 <% end %>
+  <h2>Add new task</h2>
+  <%= render 'tasks/form', task: @task %>
 
 <%= link_to 'Back', projects_path %>

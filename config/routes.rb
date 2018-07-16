@@ -3,8 +3,9 @@ Rails.application.routes.draw do
   resources :projects do
     member do
       get :tasks
-      post :task_add
+      post :task_attach
       post :task_remove
+      post :task_add
     end
   end
   resources :tasks

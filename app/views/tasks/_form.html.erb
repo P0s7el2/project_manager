@@ -1,15 +1,5 @@
 <%= form_with(model: task, local: true) do |form| %>
-  <% if task.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(task.errors.count, "error") %> prohibited this project from being saved:</h2>
-
-      <ul>
-      <% task.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render 'common/errors', resource: @task %>
 
   <div class="field">
     <%= form.label :title %>
@@ -19,6 +9,14 @@
   <div class="field">
     <%= form.label :description %>
     <%= form.text_field :description %>
+  </div>
+
+  <div class="field">
+    <% if @task.new_record? && (defined?(@project)).nil? %>
+      <%= form.collection_select :project_id, Project.all, :id, :name, { } %>
+    <% else %>
+      <%= form.hidden_field :project_id, value: @project.id %>
+    <% end %>
   </div>
 
   <div class="actions">

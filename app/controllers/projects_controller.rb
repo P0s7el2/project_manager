@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProjectsController < ApplicationController
-  before_action :set_project, only: %i[show edit update destroy tasks task_add task_remove]
+  before_action :set_project, only: %i[show edit update destroy tasks task_attach task_remove task_add]
 
   # GET /projects
   def index
@@ -51,18 +51,19 @@ class ProjectsController < ApplicationController
   # GET /projects/1/tasks
   def tasks
     @tasks = @project.tasks
+    @task = Task.new
   end
 
-  # POST /students/1/course_add?course_id=2
+  # POST /projects/1/task_attach?task_id=2
   # (note no real query string, just
   # convenient notation for parameters)
-  def task_add
+  def task_attach
     @task = Task.find(params[:task])
     if @project.attached?(@task)
-      flash[:error] = 'Task was already added?'
+      flash[:error] = 'Task was already attached'
     else
       @project.tasks << @task
-      flash[:notice] = 'Task added?'
+      flash[:notice] = 'Task attached'
     end
     redirect_to action: 'tasks', id: @project
   end
@@ -75,11 +76,12 @@ class ProjectsController < ApplicationController
         next unless @project.attached?(task)
         logger.info "Removing project from task #{task.id}"
         @project.tasks.delete(task)
-        flash[:notice] = 'Task was successfully deleted'
+        flash[:notice] = 'Task was successfully removed'
       end
     end
     redirect_to action: 'tasks', id: @project
   end
+
 
   private
 
